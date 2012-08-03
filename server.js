@@ -4,13 +4,6 @@ var io = require('socket.io').listen(8080);
 var twitter = require('ntwitter');
 var arrays = require('./lib/arrays')
 
-var twit = new twitter({
-  consumer_key: '',
-  consumer_secret: '',
-  access_token_key: '',
-  access_token_secret: ''
-});
-
 clients = [];
 
 io.sockets.on('connection', function (socket) {
