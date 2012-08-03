@@ -2,7 +2,10 @@
 
 var io = require('socket.io').listen(8080);
 var twitter = require('ntwitter');
-var arrays = require('./lib/arrays')
+var arrays = require('./lib/arrays');
+var config = require('./config');
+
+var twit = new twitter(config.twitter);
 
 clients = [];
 
