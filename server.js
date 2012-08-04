@@ -9,11 +9,18 @@ var twit = new twitter(config.twitter);
 
 clients = [];
 history = [];
+
+twit.search('twerfurt OR twerfurt2012', {'include_entities': 'true'}, function(err, data) {
+    console.log(data);
+    history = data.results;
+    if(history.length > config.history) { history.splice(0,history.length-config.history); }
+});
+
 io.sockets.on('connection', function (socket) {
   clients.push(socket);
 
   history.forEach(function(elem) {
-    socket.volatile.emit('tweet',elem);
+    socket.emit('tweet',elem);
   });
   socket.on('disconnect', function () {
     clients.remove(socket);
@@ -21,7 +28,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 
-twit.stream('statuses/filter', {track:'twerfurt,twerfurt2012'}, function(stream) {
+twit.stream('statuses/filter', {track:'twerfurt OR twerfurt2012'}, function(stream) {
   stream.on('data', function (data) {
     handleData(data);
     clients.forEach(function(client) {
