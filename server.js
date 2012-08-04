@@ -21,7 +21,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 
-twit.stream('statuses/filter', {track:'nv1ttest'}, function(stream) {
+twit.stream('statuses/filter', {track:'twerfurt,twerfurt2012'}, function(stream) {
   stream.on('data', function (data) {
     handleData(data);
     clients.forEach(function(client) {
