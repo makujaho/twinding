@@ -50,12 +50,11 @@
             margin-top: -60px;
         }
 
-        @media only screen and (min-width: 1100px) {
             .image.show {
-                max-width: 400px;
-                margin-left: -80%
+                max-width: 100px;
+                margin-left: -80%;
             }
-        }
+        
 
         @media only screen and (max-width: 480px) {
             .image.show {
@@ -93,6 +92,14 @@
 
     <script src="http://localhost:8080/socket.io/socket.io.js"></script>
     <script>
+function imgReflow() {
+   $('img').forEach(function(data) {
+      var temp = data.src;
+      data.src = "";
+      data.src = temp;
+  });
+}
+
         $(document).ready(function(){
 
         var socket = io.connect('http://localhost:8080');
@@ -107,8 +114,14 @@
                 // Don't show retweets
                 if (typeof(data.retweeted_status) !== 'undefined' ||  data.from_user_id_str === '579632323') return;
 
-                if (data && data.entities && data.entities.urls && data.entities.urls[0] && data.entities.urls[0].expanded_url) {
-                    image = data.entities.urls[0].expanded_url;
+                if (data && data.entities && ((data.entities.urls && data.entities.urls[0] && data.entities.urls[0].expanded_url) || (data.entities.media && data.entities.media[0] && data.entities.media[0].display_url))) {
+                    if(data.entities.urls.length) {
+                        image = data.entities.urls[0].expanded_url;
+                    } else if(data.entities.media.length) {
+                        image = "http://"+data.entities.media[0].display_url;
+                    } else {
+                        image = '';
+                    }
                 } else {
                     image = '';//data.entities.urls.image;
                 }
@@ -142,7 +155,7 @@
                             "<img src='http://poc.hoeja.de/proxy/?" + image + "'>" + 
                             "<div class='info'>" +
                                 "<span class='user'>" + screen_name + " (" + user_name + ")" + "</span>" +
-                                "<span class='time'> " + tweet_date.split(' ')[4] + "</span>" +
+                                "<span class='time'> " + tweet_date.split(' ')[3] + "</span>" +
                                 "<span class='client'> " + user_client + "</span>" +
                             "</div>" +
                           "</div>");
@@ -154,6 +167,7 @@
 
                 $('#tweets').prepend(p);
                 p.slideDown(140);
+                window.setTimeout("imgReflow()",1000);
             });
         });
     </script>
