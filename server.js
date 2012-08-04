@@ -8,22 +8,27 @@ var config = require('./config');
 var twit = new twitter(config.twitter);
 
 clients = [];
-
+history = [];
 io.sockets.on('connection', function (socket) {
   clients.push(socket);
 
+  history.forEach(function(elem) {
+    socket.volatile.emit('tweet',elem);
+  });
   socket.on('disconnect', function () {
     clients.remove(socket);
   });
 });
 
 
-twit.stream('statuses/filter', {track:'twerfurt,twerfurt2012'}, function(stream) {
+twit.stream('statuses/filter', {track:'nv1ttest'}, function(stream) {
   stream.on('data', function (data) {
     handleData(data);
     clients.forEach(function(client) {
       client.volatile.emit('tweet',data);
     });
+    history.push(data);
+    if(history.length > config.history) { history.splice(0,1); }
   });
 });
 

@@ -7,4 +7,6 @@ config.twitter = {
   access_token_secret: ''
 };
 
+config.history = 10;
+
 module.exports = config;
