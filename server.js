@@ -1,23 +1,24 @@
-#!/usr/bin/env node
-
-var io = require('socket.io').listen(8080);
-var twitter = require('ntwitter');
-var arrays = require('./lib/arrays');
-var config = require('./config');
+var io      = require('socket.io').listen(8080),
+    twitter = require('ntwitter'),
+    arrays  = require('./lib/arrays'),
+    config  = require('./config');
 
 var twit = new twitter(config.twitter);
 
 clients = [];
 history = [];
 
-/*
-twit.search('twerfurt OR twerfurt2012', {'include_entities': 'true'}, function(err, data) {
-    console.log(data);
-    history = data.results;
-    if(history.length > config.history) { history.splice(0,history.length-config.history); }
-    history.reverse();
+twit.search(config.search, {'include_entities': 'true'}, function(err, data) {
+    logDebug(data);
+
+    data.results.reverse();
+    data.results.forEach(function(elem) {
+      prepareSearchData(elem,function(d) {
+        pushHistory(d);
+      });
+    });
 });
-*/
+
 io.sockets.on('connection', function (socket) {
   clients.push(socket);
 
@@ -30,18 +31,43 @@ io.sockets.on('connection', function (socket) {
 });
 
 
-twit.stream('statuses/filter', {track:'twerfurt,twerfurt2012'}, function(stream) {
+twit.stream('statuses/filter', {track: config.search}, function(stream) {
   stream.on('data', function (data) {
-    handleData(data);
-    clients.forEach(function(client) {
-      client.emit('tweet',data);
+    logDebug(data);
+
+    prepareStreamData(data, function (d) {
+      pushHistory(data);
+
+      clients.forEach(function(client) {
+        client.emit('tweet',data);
+      });
     });
-    history.push(data);
-    if(history.length > config.history) { history.splice(0,1); }
+
   });
 });
 
-function handleData(data) {
-        console.log(data);
-        return true;
+function prepareStreamData(data, callback) {
+  // TODO: reassamble data to new data object to unify
+  //       data between streaming and normal API  
+  callback(data);  
+}
+
+function prepareSearchData(data, callback) {
+  // TODO: reassamble data to new data object to unify
+  //       data between streaming and normal API  
+  callback(data);  
+}
+
+function pushHistory(data) {
+  history.push(data);
+
+  if(history.length > config.history) {
+    history.splice(0,1);
+  }
+}
+
+function logDebug(data) {
+  if (config.DEBUG===1) {
+    console.log(data);
+  } 
 }
