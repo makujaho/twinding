@@ -1,3 +1,5 @@
+/* vim: set nu filetype=c shiftwidth=4 expandtab textwidth=80: */
+
 var io      = require('socket.io').listen(8080),
     twitter = require('ntwitter'),
     arrays  = require('./lib/arrays'),
