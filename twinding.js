@@ -5,11 +5,12 @@ var twinding = {},
     clients,
     history,
     historyLength,
-    twit;
+    twit,
+    DEBUG;
 
 // Helper function
-_logDebug(data) {
-   if (twinding.DEBUG && twinding.DEBUG===1) {
+logDebug(data) {
+   if (DEBUG && DEBUG===1) {
         console.log(data);
     } 
 }
@@ -18,11 +19,20 @@ clients       = [];
 history       = [];
 historyLength = 20;
 twit          = {};
+DEBUG         = 0;
 
 twinding.start = function (config) {
     if (twit && twit.search) {
-        _logDebug("WARNING: Server already started");
+        logDebug("WARNING: Server already started");
         return;
+    }
+
+    if (config.history) {
+        historyLength = config.history;
+    }
+
+    if (config.debug) {
+        DEBUG = 1;
     }
 
     twit = new twitter(config.twitter);
